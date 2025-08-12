@@ -13,7 +13,10 @@ import com.elianfm.springcloud.msvc.cursos.models.entity.Curso;
 import com.elianfm.springcloud.msvc.cursos.models.entity.CursoUsuario;
 import com.elianfm.springcloud.msvc.cursos.repositories.CursoRepository;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
+@Slf4j
 public class CursoServiceImpl implements CursoService {
 
     @Autowired
@@ -62,7 +65,6 @@ public class CursoServiceImpl implements CursoService {
             Usuario usuarioC = client.detalle(usuario.getId());
             CursoUsuario cursoUsuario = new CursoUsuario();
             cursoUsuario.setUsuarioId(usuarioC.getId());
-            cursoUsuario.setCurso(curso);
             curso.addCursoUsuario(cursoUsuario);
 
             repository.save(curso);
@@ -80,7 +82,6 @@ public class CursoServiceImpl implements CursoService {
             Usuario usuarioCreado = client.crear(usuario);
             CursoUsuario cursoUsuario = new CursoUsuario();
 
-            cursoUsuario.setCurso(curso);
             cursoUsuario.setUsuarioId(usuarioCreado.getId());
             curso.addCursoUsuario(cursoUsuario);
 
@@ -99,12 +100,30 @@ public class CursoServiceImpl implements CursoService {
             Usuario usuarioC = client.detalle(usuario.getId());
             CursoUsuario cursoUsuario = new CursoUsuario();
 
-            cursoUsuario.setCurso(curso);
             cursoUsuario.setUsuarioId(usuarioC.getId());
             curso.removeCursoUsuario(cursoUsuario);
 
+            //
             repository.save(curso);
             return Optional.of(usuarioC);
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<Curso> porIdConUsuarios(Long id) {
+        Optional<Curso> cursoOptional = repository.findById(id);
+        if (cursoOptional.isPresent()) {
+            Curso curso = cursoOptional.get();
+            if(!curso.getCursoUsuarios().isEmpty()) {
+                List<Long> ids = curso.getCursoUsuarios().stream()
+                        .map(CursoUsuario::getUsuarioId)
+                        .toList();
+                List<Usuario> usuarios = client.obtenerAlumnosPorCurso(ids);
+                curso.setUsuarios(usuarios);
+            }
+            return Optional.of(curso);
         }
         return Optional.empty();
     }

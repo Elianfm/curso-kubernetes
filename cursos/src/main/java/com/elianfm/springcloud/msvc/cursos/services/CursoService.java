@@ -15,6 +15,7 @@ public interface CursoService {
 
     // Métodos para manejar la relación con usuarios (microservicio usuarios)
     Optional<Usuario> asignarUsuario(Usuario usuario, Long cursoId);
+    Optional<Curso> porIdConUsuarios(Long id);
     Optional<Usuario> crearUsuario(Usuario usuario, Long cursoId);
     Optional<Usuario> eliminarUsuario(Usuario usuario, Long cursoId);
 
