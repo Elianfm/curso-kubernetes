@@ -84,6 +84,12 @@ public class CursoController {
         return ResponseEntity.notFound().build();
     }
 
+    @DeleteMapping("/eliminar-curso-usuario/{id}")
+    public ResponseEntity<?> eliminarCursoUsuarioPorId(@PathVariable Long id) {
+        cursoService.eliminarCursoUsuarioPorUsuarioId(id);
+        return ResponseEntity.noContent().build();
+    }
+
     @PutMapping("/asignar-usuario/{cursoId}")
     public ResponseEntity<?> asignarUsuario(@RequestBody Usuario usuario, @PathVariable Long cursoId) {
         Optional<Usuario> usuarioAsignado = null;
@@ -92,7 +98,7 @@ public class CursoController {
             usuarioAsignado = cursoService.asignarUsuario(usuario, cursoId);
         } catch (FeignException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                 .body(Collections.singletonMap("mensaje", "No existe un usuario con ese ID" + e.getMessage()));
+                                 .body(Collections.singletonMap("mensaje", "No existe un usuario con ese id" + e.getMessage()));
         }
         if (usuarioAsignado.isPresent()) {
             return ResponseEntity.status(HttpStatus.CREATED)

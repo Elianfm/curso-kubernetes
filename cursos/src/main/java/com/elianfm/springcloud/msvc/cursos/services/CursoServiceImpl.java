@@ -13,10 +13,7 @@ import com.elianfm.springcloud.msvc.cursos.models.entity.Curso;
 import com.elianfm.springcloud.msvc.cursos.models.entity.CursoUsuario;
 import com.elianfm.springcloud.msvc.cursos.repositories.CursoRepository;
 
-import lombok.extern.slf4j.Slf4j;
-
 @Service
-@Slf4j
 public class CursoServiceImpl implements CursoService {
 
     @Autowired
@@ -126,6 +123,12 @@ public class CursoServiceImpl implements CursoService {
             return Optional.of(curso);
         }
         return Optional.empty();
+    }
+
+    @Override
+    @Transactional
+    public void eliminarCursoUsuarioPorUsuarioId(Long usuarioId) {
+        repository.eliminarCursoUsuarioPorUsuarioId(usuarioId);
     }
 
 }
