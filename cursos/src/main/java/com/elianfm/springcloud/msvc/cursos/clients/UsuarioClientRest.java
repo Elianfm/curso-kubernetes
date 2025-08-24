@@ -18,7 +18,7 @@ import com.elianfm.springcloud.msvc.cursos.models.Usuario;
 // se encuentra en el application.properties del microservicio de usuarios como "spring.application.name=msvc-usuarios"
 // Aunque ahora usamos una URL fija, cuando integramos spring cloud y kubernetes se desacoplará la URL
 // y se usará un registro de servicios para encontrar el microservicio de usuarios
-@FeignClient(name = "msvc-usuarios", url = "http://localhost:8001/")
+@FeignClient(name = "msvc-usuarios", url = "http://usuarios:8001/")
 public interface UsuarioClientRest {
 
     // Nótese que el método es declarativo, es decir, no tiene implementación

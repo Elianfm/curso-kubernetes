@@ -49,6 +49,8 @@
 # docker stop <id_contenedor>
 #   Detiene un contenedor en ejecución.
 #
+# docker stop $(docker ps -q) || Detiene todos los contenedores en ejecución.
+#
 # docker rm <id_contenedor> || docker container prune
 #   Elimina un contenedor detenido || elimina todos los contenedores detenidos.
 #
@@ -86,6 +88,8 @@
 #   logging.file.path=/app/logs
 #   Luego un cp: docker cp wizardly_gates:/app/logs .\logs
 #
+# Recomendable usar --restart=always en producción, ya que garantiza que el contenedor se reinicie automáticamente en caso de fallos.
+#
 # docker image|container inspect <nombre_imagen o id_contenedor>
 #   Muestra información detallada sobre una imagen o contenedor específico.
 #
@@ -98,6 +102,32 @@
 #   por ejemplo: docker run -d --name mi_contenedor usuarios
 #   Para dar una etiqueta a una imagen, se puede usar la opción -t al construirla.
 #   por ejemplo: docker build -t usuarios:1.0 .
+#
+# Para redes 
+#   docker network --help || para ver los comandos relacionados con redes.
+#   docker network create <nombre_red> || para crear una nueva red.
+#   docker network ls || para listar las redes existentes.
+#   docker run -p <puerto_host>:<puerto_contenedor> -d --rm --name <nombre_contenedor> --network <nombre_red> <imagen> || para ejecutar un contenedor en una red específica.
+#
+# Para bases de datos como MySQL o PostgreSQL
+#   docker pull mysql:<version> 
+#   docker run -d -p 3307:3306 --name <nombre_contenedor> --network <nombre_red> -e MYSQL_ROOT_PASSWORD=<password> -e MYSQL_DATABASE=<nombre_bd> mysql:<version>
+#   docker run -p 5532:5432 --name <nombre_contenedor> --network <nombre_red> -e POSTGRES_USER=<usuario> -e POSTGRES_PASSWORD=<password> -e POSTGRES_DB=<nombre_bd> postgres:<version>
+#   IMPORTANTE; si se rm un contenedor de BD se perderán también los datos. Para solucionar esto se recomienda usar volúmenes.
+#   Los volúmenes permiten persistir los datos incluso si el contenedor se elimina. Simplemente es agregar la opción -v al ejecutar el contenedor.
+#   incluyendo la ruta donde se van a persistir los datos (se almacenan en el host)
+#   Ej; docker run -d -p 3307:3306 --name mysql9 --network spring -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=msvc_usuarios -v data-mysql:/var/lib/mysql --restart=always mysql:9
+#   Ej; docker run -p 5532:5432 --name postgres17 --network spring -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=123 -e POSTGRES_DB=msvc_cursos -v data-postgres:/var/lib/postgresql/data --restart=always -d postgres:17-alpine
+#   docker volume ls || sirve para listar los volúmenes existentes.
+#
+# Contenedores utilitarios
+#   Ejecutan tareas específicas, como la creación de bases de datos, la ejecución de scripts de migración, etc.
+#   docker run -it --rm --network <nombre_red> <imagen> bash
+#   Ej; docker run -it --rm --network spring mysql:9 bash (o /bin/bash)
+#   mysql -h mysql9 -u root -p (salir con exit)
+#   Ej; docker run -it --rm --network spring postgres:14-alpine psql -h postgres17 -U postgres
+#   \c msvc_cursos; \dt; \d+; exit
+#
 #
 # Hay muchos comandos más, se pueden consultar con:
 # docker --help
