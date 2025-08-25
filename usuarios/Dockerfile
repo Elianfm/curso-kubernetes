@@ -128,6 +128,16 @@
 #   Ej; docker run -it --rm --network spring postgres:14-alpine psql -h postgres17 -U postgres
 #   \c msvc_cursos; \dt; \d+; exit
 #
+# Arguments y Environment
+#   Docker soporta dos tipos de variables que podemos configurar: Arguments en tiempo de construcción y Environment en tiempo de ejecución.
+#   ARG se utiliza como variables solo dentro del Dockerfile, no disponible en el ENTRYPOINT/CMD, tampoco en el código o aplicación
+#   docker build + --build-arg <nombre>=<valor>
+#   ej; docker build -t usuarios --build-arg PORT_APP=8080 . -f .\usuarios\Dockerfile
+#   ENV se utiliza dentro del Dockerfile y disponible también en el código fuente
+#   docker run + -e o --env <nombre>=<valor>
+#   ej; docker run -p 8001:8090 --env PORT=8090 -d --rm --name usuarios --network spring usuarios
+#   o usar un env-file con docker run -p 8001:8091 --env-file .\usuarios\env -d --rm --name usuarios --network spring usuarios
+#
 #
 # Hay muchos comandos más, se pueden consultar con:
 # docker --help
@@ -157,22 +167,26 @@
 # Así, la imagen final solo contiene el ejecutable y el entorno de ejecución, no el código fuente ni las herramientas de construcción.
 
 
+ARG MSVC_NAME=usuarios
+
 # Imagen base oficial de OpenJDK 17.0.2. Esta capa incluye todo el entorno de Java necesario para ejecutar aplicaciones.
 # FROM openjdk:17.0.2
 
 # Esta imagen base incluye el JDK de OpenJDK 17 en una versión ligera (Alpine).
 FROM openjdk:17-jdk-alpine AS builder
 
+# No es necesario volver a asignar el valor a la variable, solamente declararla
+ARG MSVC_NAME
 
 # Establece el directorio de trabajo dentro del contenedor. Todas las instrucciones siguientes se ejecutarán desde aquí.
-WORKDIR /app/usuarios
+WORKDIR /app/$MSVC_NAME
 RUN mkdir ./logs
 # Copia el archivo pom.xml principal al directorio /app. Esto permite instalar dependencias antes de copiar el código fuente completo.
 COPY ./pom.xml /app
 # Copia la carpeta .mvn (wrapper de Maven) y los archivos necesarios para construir el proyecto.
-COPY ./usuarios/.mvn ./.mvn
-COPY ./usuarios/mvnw .
-COPY ./usuarios/pom.xml .
+COPY ./$MSVC_NAME/.mvn ./.mvn
+COPY ./$MSVC_NAME/mvnw .
+COPY ./$MSVC_NAME/pom.xml .
 
 # Este comando estaba en el curso pero se comenta porque no funcionaba correctamente en el entorno local.
 # RUN ./mvnw clean package -Dmaven.test.skip -Dmaven.main.skip -Dspringboot.repackage.skip && rm -r ./target/
@@ -183,7 +197,7 @@ COPY ./usuarios/pom.xml .
 RUN ./mvnw dependency:go-offline
 
 # Copia el código fuente de la aplicación al contenedor. Si hay cambios en el código, Docker reconstruye las capas siguientes.
-COPY ./usuarios/src ./src
+COPY ./$MSVC_NAME/src ./src
 
 # Compila el proyecto y genera el archivo JAR, omitiendo los tests para acelerar el proceso.
 RUN ./mvnw clean package -DskipTests
@@ -196,10 +210,19 @@ RUN ./mvnw clean package -DskipTests
 # ni herramientas de construcción, solo el ejecutable y el entorno necesario.
 FROM openjdk:17-jdk-alpine
 WORKDIR /app 
-COPY --from=builder /app/usuarios/target/usuarios-0.0.1-SNAPSHOT.jar .
 
+# Volvermos a declarar las variable de entorno MSVC_NAME porque estamos en otra etapa. 
+# Se deben volver a definir después de cada FROM y antes del FROM de la siguiente etapa
+ARG MSVC_NAME
+ARG TARGET_FOLDER=/app/$MSVC_NAME/target/
+COPY --from=builder $TARGET_FOLDER/$MSVC_NAME-0.0.1-SNAPSHOT.jar .
+
+
+ARG PORT_APP=8001
+# Con ENV se pueden definir variables de entorno, debe tener el mismo nombre que en el application.properties
+ENV PORT=$PORT_APP
 # Expone el puerto 8001 para que la aplicación sea accesible desde fuera del contenedor.
-EXPOSE 8001
+EXPOSE $PORT
 
 # Comando de entrada: ejecuta la aplicación Spring Boot usando el JAR generado.
 #ENTRYPOINT ["java", "-jar", "./usuarios-0.0.1-SNAPSHOT.jar"]
