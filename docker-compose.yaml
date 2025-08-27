@@ -1,0 +1,98 @@
+# =============================================
+# Docker Compose
+# =============================================
+# Docker Compose es una herramienta para orquestar y gestionar aplicaciones multi-contenedor.
+# Permite definir y ejecutar aplicaciones Docker utilizando un archivo YAML para configurar
+# los servicios, name (hostname), puertos, redes, env, volúmenes, images y contenedores.
+# =============================================
+# docker-compose up -d || Este comando inicia los contenedores en segundo plano (detached mode).
+# docker-compose down || Este comando detiene y elimina los contenedores, redes y volúmenes definidos en el archivo.
+#   flag -v || Este flag detiene los volúmenes asociados a los contenedores. No los elimina ya que podrían ser compartidos por otros contenedores.
+# docker-compose logs || Este comando muestra los logs de los contenedores en ejecución.
+# docker-compose exec <service> <command> || Este comando ejecuta un comando en un contenedor en ejecución.
+# docker-compose start || Este comando inicia los contenedores detenidos.
+# docker-compose stop || Este comando detiene los contenedores en ejecución.
+# docker-compose restart || Este comando reinicia los contenedores en ejecución. Equivale a detenerlos y volver a iniciarlos.
+# =============================================
+
+# Versión de Docker Compose, habilita o deshabilita características específicas
+#version: "3.9" Desde Docker Composev2 ya no es necesario especificar la versión
+
+# Definición de servicios
+# Estas instrucciones definen los servicios que componen la aplicación.
+# Es equivalente a definir múltiples contenedores en un solo archivo.
+services:
+  mysql9:
+    container_name: mysql9
+    image: mysql:9
+    ports:
+      - "3307:3306"
+    environment:
+    # también se puede como "- MYSQL_ROOT_PASSWORD=root"
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: msvc_usuarios
+    volumes:
+      - data-mysql:/var/lib/mysql
+    restart: always
+    networks:
+    # por defecto, docker compose crea una red interna para todos los servicios
+    # pero se puede especificar una red o varias diferentes si es necesario
+      - spring
+  postgres17:
+    container_name: postgres17
+    image: postgres:17-alpine
+    ports:
+      - "5532:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123
+      POSTGRES_DB: msvc_cursos
+    volumes:
+      - data-postgres:/var/lib/postgresql/data
+    restart: always
+    networks:
+      - spring
+  msvc-usuarios:
+    container_name: msvc-usuarios
+    #image: usuarios si la imagen ya existe
+    # y si no existe se puede construir con build, solo se construye si no existe, no toma cambios del código
+    # pero se puede forzar con docker-compose up --build -d o docker-compose build pero este no hace run
+    build:
+      context: ./
+      dockerfile: ./usuarios/Dockerfile
+    ports:
+      - "8001:8001"
+    env_file: ./usuarios/.env
+    networks:
+      - spring
+    depends_on:
+      - mysql9
+    restart: always
+  msvc-cursos:
+    container_name: msvc-cursos
+    #image: cursos
+    build:
+      context: ./
+      dockerfile: ./cursos/Dockerfile
+    ports:
+      - "8002:8002"
+    env_file: ./cursos/.env
+    networks:
+      - spring
+    depends_on:
+      - postgres17
+      - msvc-usuarios
+    restart: always
+volumes:
+  data-mysql:
+    name: data-mysql
+    external: true
+  data-postgres:
+    name: data-postgres
+    external: true
+networks:
+  spring:
+    name: spring
+    external: true
+
+  

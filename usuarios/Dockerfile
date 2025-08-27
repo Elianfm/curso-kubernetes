@@ -153,6 +153,12 @@
 #   Muestra la ayuda de Docker y sus comandos disponibles.
 #
 # =============================================
+# Docker Compose
+# =============================================
+# Docker Compose es una herramienta para orquestar y gestionar aplicaciones multi-contenedor.
+# Permite definir y ejecutar aplicaciones Docker utilizando un archivo YAML para configurar
+# los servicios, name (hostname), puertos, redes, env, volúmenes, images y contenedores.
+# =============================================
 # ¿Cómo funcionan las capas en Docker?
 # =============================================
 # Cada instrucción (FROM, COPY, RUN, etc.) crea una capa en la imagen. Si una capa no cambia, Docker la reutiliza en futuras construcciones.
