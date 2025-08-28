@@ -15,4 +15,3 @@ En pocas palabras, son un conjunto de componentes pequeños y autónos que colab
 - **Balance de carga**: Distribuyen las solicitudes entrantes entre múltiples instancias para optimizar el rendimiento y la disponibilidad.
 - **Configuraciones y entornos**: Permiten configuraciones específicas para diferentes entornos (desarrollo, pruebas, producción) y administrar las configuraciones de forma centralizada.
 - **API Gateway o Puerta de enlace**: Actúa como un punto de entrada único para todas las solicitudes a los microservicios, gestionando la autenticación, autorización y enrutamiento de solicitudes.
-

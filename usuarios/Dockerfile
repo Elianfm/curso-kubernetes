@@ -159,6 +159,13 @@
 # Permite definir y ejecutar aplicaciones Docker utilizando un archivo YAML para configurar
 # los servicios, name (hostname), puertos, redes, env, volúmenes, images y contenedores.
 # =============================================
+# DockerHub
+# =============================================
+# DockerHub es un servicio de registro de imágenes Docker en la nube. Permite almacenar, compartir y gestionar imágenes Docker de forma centralizada.
+# docker push <nombre_imagen>:<tag> || nos permite subir imágenes al registro.
+# docker pull <nombre_imagen>:<tag> || nos permite bajar imágenes del registro.
+# El push requiere autenticación en DockerHub, esto se hace con docker login.
+# =============================================
 # ¿Cómo funcionan las capas en Docker?
 # =============================================
 # Cada instrucción (FROM, COPY, RUN, etc.) crea una capa en la imagen. Si una capa no cambia, Docker la reutiliza en futuras construcciones.

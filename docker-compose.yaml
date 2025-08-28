@@ -54,12 +54,12 @@ services:
       - spring
   msvc-usuarios:
     container_name: msvc-usuarios
-    #image: usuarios si la imagen ya existe
-    # y si no existe se puede construir con build, solo se construye si no existe, no toma cambios del código
+    image: ukumare/usuarios:latest
+    #  si no existe se puede construir con build, solo se construye si no existe, no toma cambios del código
     # pero se puede forzar con docker-compose up --build -d o docker-compose build pero este no hace run
-    build:
-      context: ./
-      dockerfile: ./usuarios/Dockerfile
+    #build: Se comenta porque se va a usar dockerhub
+    #  context: ./
+    #  dockerfile: ./usuarios/Dockerfile
     ports:
       - "8001:8001"
     env_file: ./usuarios/.env
@@ -70,10 +70,7 @@ services:
     restart: always
   msvc-cursos:
     container_name: msvc-cursos
-    #image: cursos
-    build:
-      context: ./
-      dockerfile: ./cursos/Dockerfile
+    image: ukumare/cursos:latest
     ports:
       - "8002:8002"
     env_file: ./cursos/.env
